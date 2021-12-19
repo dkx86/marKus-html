@@ -13,6 +13,7 @@ repositories {
 }
 
 dependencies {
+    implementation("org.jetbrains:markdown:0.2.4")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.0")
 }
 

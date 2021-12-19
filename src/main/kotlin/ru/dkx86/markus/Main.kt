@@ -1,6 +1,8 @@
 package ru.dkx86.markus
 
 import java.io.File
+import java.nio.file.Paths
+import kotlin.io.path.createDirectories
 import kotlin.system.exitProcess
 
 const val PROJECTS_FILE: String = "projects.csv"
@@ -17,9 +19,10 @@ fun listenInput() {
     print("> ")
     val cmd = readlnOrNull() ?: "help"
     try {
-        processCommand(cmd.trim().replace("\\s+".toRegex(), " "))
+        processCommand(cmd.trim().removeMultiSpaces())
     } catch (e: Exception) {
         println("ERROR: ${e.message}")
+        e.printStackTrace() // TODO
     }
 
     listenInput()
@@ -35,7 +38,7 @@ fun processCommand(commandLine: String) {
         "delete" -> validate(arg, ::deleteProject)
         "show" -> validate(arg, ::showProject)
         "list" -> listProjects()
-        "convert" -> convertProjectToHtml(arg)
+        "convert" -> validate(arg, ::convertProjectToHtml)
         "exit" -> exitProcess(0)
     }
 }
@@ -57,8 +60,11 @@ fun showProject(index: Int) {
     println(projects[index].fullInfo())
 }
 
-fun convertProjectToHtml(arg: String) {
-    //TODO
+fun convertProjectToHtml(index: Int) {
+    val project = projects[index]
+    println("Start processing project #$index '${project.name}' ...")
+    if(convertMd2Html(project)) println("Project #$index '${project.name}' successfully converted.")
+
 }
 
 fun loadProjects() {
@@ -71,7 +77,7 @@ fun loadProjects() {
 
 fun saveProjects() {
     val content = StringBuilder()
-    projects.forEach { p -> content.append("${p.name};${p.description};${p.authorName};${p.tags}").append("\n") }
+    projects.forEach { p -> content.append("${p.name};${p.description};${p.authorName};${p.tags};${p.path}").append("\n") }
 
     File(PROJECTS_FILE).run {
         createNewFile()
@@ -81,7 +87,7 @@ fun saveProjects() {
 
 fun readProject(line: String): Project {
     val parts = line.split(';')
-    return Project(parts[0], parts[1], parts[2], parts[3])
+    return Project(parts[0], parts[1], parts[2], parts[3], Paths.get(parts[4]))
 }
 
 fun listProjects() {
@@ -102,11 +108,15 @@ fun createNewProject() {
     print("Input weblog tags: ")
     val projectTags = readlnOrNull() ?: ""
 
-    val project = Project(projectName, projectDescription, authorName, projectTags)
-    // save to file
+    val projectPath = Paths.get(PROJECTS_DIR, projectName.underscore()).createDirectories()
+    projectPath.resolve(PROJECT_TEXT_DIR).createDirectories()
+    projectPath.resolve(PROJECT_IMAGE_DIR).createDirectories()
+
+    val project = Project(projectName, projectDescription, authorName, projectTags, projectPath)
     projects.add(project)
+
     saveProjects()
-    println("Project '$projectName' has been successfully CREATED.")
+    println("Project '$projectName' has been successfully CREATED. The project's files must be located at '$projectPath' directory.")
 }
 
 fun editProject(index: Int) {
