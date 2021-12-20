@@ -1,9 +1,12 @@
 package ru.dkx86.markus
 
-data class Article(val title: String,
-                   val date: String,
-                   val type: String,
-                   val content: String,
-                   val summary : String,
-                   val fileName: String) {
-}
+import java.time.LocalDate
+
+data class Article(
+    val title: String,
+    val date: LocalDate,
+    val type: String,
+    val content: String,
+    val summary: String,
+    val fileName: String
+)
