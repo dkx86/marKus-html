@@ -45,10 +45,10 @@ fun processCommand(commandLine: String) {
 
 fun printHelp() = println("Commands: list, create, show, edit, delete, help, convert, exit")
 
-fun validate(arg : String, operation : (index: Int) -> Unit) {
+fun validate(arg: String, operation: (index: Int) -> Unit) {
     try {
         val index = arg.toInt()
-        if(index in 0..projects.size) operation(index)
+        if (index in 0..projects.size) operation(index)
         else println("Project #$index not found")
     } catch (e: NumberFormatException) {
         println("Invalid argument '$arg'")
@@ -63,7 +63,7 @@ fun showProject(index: Int) {
 fun convertProjectToHtml(index: Int) {
     val project = projects[index]
     println("Start processing project #$index '${project.name}' ...")
-    if(convertMd2Html(project)) println("Project #$index '${project.name}' successfully converted.")
+    if (convertMd2Html(project)) println("Project #$index '${project.name}' successfully converted.")
 
 }
 
@@ -77,7 +77,9 @@ fun loadProjects() {
 
 fun saveProjects() {
     val content = StringBuilder()
-    projects.forEach { p -> content.append("${p.name};${p.description};${p.authorName};${p.tags};${p.path}").append("\n") }
+    projects.forEach { p ->
+        content.append("${p.name};${p.description};${p.authorName};${p.tags};${p.path}").append("\n")
+    }
 
     File(PROJECTS_FILE).run {
         createNewFile()
@@ -87,7 +89,14 @@ fun saveProjects() {
 
 fun readProject(line: String): Project {
     val parts = line.split(';')
-    return Project(parts[0], parts[1], parts[2], parts[3], Paths.get(parts[4]))
+    return Project(
+        name = parts[0],
+        description = parts[1],
+        authorName = parts[2],
+        tags = parts[3],
+        path = Paths.get(parts[4]),
+        url = parts[5]
+    )
 }
 
 fun listProjects() {
@@ -108,11 +117,15 @@ fun createNewProject() {
     print("Input weblog tags: ")
     val projectTags = readlnOrNull() ?: ""
 
+    print("Input project URL (need for RSS): ")
+    val projectUrl = readlnOrNull() ?: ""
+
     val projectPath = Paths.get(PROJECTS_DIR, projectName.underscore()).createDirectories()
     projectPath.resolve(PROJECT_TEXT_DIR).createDirectories()
     projectPath.resolve(PROJECT_IMAGE_DIR).createDirectories()
 
-    val project = Project(projectName, projectDescription, authorName, projectTags, projectPath)
+    val url = if (projectUrl.endsWith('/')) projectUrl else "$projectUrl/"
+    val project = Project(projectName, projectDescription, authorName, projectTags, projectPath, url)
     projects.add(project)
 
     saveProjects()
@@ -144,7 +157,7 @@ fun deleteProject(index: Int) {
     val project = projects[index]
     print("Delete project #$index with name '${project.name}'? (yes/NO): ")
     val answer = readlnOrNull() ?: "no"
-    if(answer.lowercase() == "yes") {
+    if (answer.lowercase() == "yes") {
         projects.removeAt(index)
         saveProjects()
         println("Project has been successfully DELETED.")

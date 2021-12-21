@@ -12,13 +12,14 @@ data class Project(
     var description: String,
     var authorName: String,
     var tags: String,
-    var path: Path
+    var path: Path,
+    var url: String
 ) {
 
     override fun toString(): String {
-        return "$name ( $description )"
+        return "$name ( $description ) at $url"
     }
 
     fun fullInfo(): String =
-        " Name: $name ${System.lineSeparator()} Description: $description ${System.lineSeparator()} Author: $authorName ${System.lineSeparator()} Tags: $tags ${System.lineSeparator()} Path: ${path.absolutePathString()}"
+        " Name: $name ${System.lineSeparator()} Description: $description ${System.lineSeparator()} Author: $authorName ${System.lineSeparator()} Tags: $tags ${System.lineSeparator()} Path: ${path.absolutePathString()} ${System.lineSeparator()} URL: $url"
 }

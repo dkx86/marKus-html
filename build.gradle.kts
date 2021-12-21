@@ -14,6 +14,7 @@ repositories {
 
 dependencies {
     implementation("com.vladsch.flexmark:flexmark-all:0.62.2")
+    implementation("org.simpleframework:simple-xml:2.7.1")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.0")
 
 }

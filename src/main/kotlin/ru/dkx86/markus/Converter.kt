@@ -1,5 +1,6 @@
 package ru.dkx86.markus
 
+import ru.dkx86.markus.rss.generateRssFeed
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -79,6 +80,8 @@ fun convertMd2Html(project: Project, templateName: String = DEFAULT_TEMPLATE_NAM
 
     println("Saving index...")
     saveIndexFiles(page, project.name, projectPublishDir, indexRecordsMap)
+    println("Generating RSS...")
+    generateRssFeed(project, indexRecordsMap.flatMap { it.value }, projectPublishDir)
 
     println("Copying template files...")
     copyTemplateServiceFiles(templateName, projectPublishDir)
@@ -89,7 +92,7 @@ fun convertMd2Html(project: Project, templateName: String = DEFAULT_TEMPLATE_NAM
     return true
 }
 
-fun compileTypes(types: Set<String>, typeLinkTemplate : String): String {
+private fun compileTypes(types: Set<String>, typeLinkTemplate : String): String {
     val builder = StringBuilder()
     for (type in types) {
         val html = typeLinkTemplate.replace(RECORD_TYPE_LINK_TITLE, type.uppercase())
@@ -99,7 +102,7 @@ fun compileTypes(types: Set<String>, typeLinkTemplate : String): String {
     return builder.toString()
 }
 
-fun saveArticles(pageTemplate: String, projectPublishDir: Path, articles: List<Article>) {
+private fun saveArticles(pageTemplate: String, projectPublishDir: Path, articles: List<Article>) {
     for (article in articles) {
         val content = pageTemplate.replace(PLACEHOLDER_PAGE_TITLE, article.title)
             .replace(PLACEHOLDER_PAGE_CONTENT, article.content)
@@ -107,7 +110,7 @@ fun saveArticles(pageTemplate: String, projectPublishDir: Path, articles: List<A
     }
 }
 
-fun saveIndexFiles(
+private fun saveIndexFiles(
     page: String,
     projectName: String,
     projectPublishDir: Path,
@@ -115,12 +118,13 @@ fun saveIndexFiles(
 ) {
     // full index
     saveIndexFile(
-        records = indexRecordsMap.flatMap { entry -> entry.value },
+        records = indexRecordsMap.flatMap { it.value },
         pageTitle = projectName,
         page = page,
         projectPublishDir = projectPublishDir,
         fileName = "index"
     )
+
     // by type
     for (entry in indexRecordsMap) {
         saveIndexFile(
@@ -133,7 +137,7 @@ fun saveIndexFiles(
     }
 }
 
-fun saveIndexFile(records : List<IndexRecord>, pageTitle : String,  page: String, projectPublishDir: Path, fileName : String) {
+private fun saveIndexFile(records : List<IndexRecord>, pageTitle : String,  page: String, projectPublishDir: Path, fileName : String) {
     val total = records.sortedByDescending { it.date }
     val indexPageBuilder = StringBuilder()
     for (record in total) {
@@ -144,7 +148,7 @@ fun saveIndexFile(records : List<IndexRecord>, pageTitle : String,  page: String
     projectPublishDir.resolve("$fileName.html").writeText(indexHtml)
 }
 
-fun copyImages(projectPath: Path, projectPublishDir: Path) {
+private fun copyImages(projectPath: Path, projectPublishDir: Path) {
     val source = projectPath.resolve(IMAGE_DIR).toFile().listFiles() ?: return
     val destination = projectPublishDir.resolve(IMAGE_DIR)
     for (imageFile in source) {
@@ -152,13 +156,13 @@ fun copyImages(projectPath: Path, projectPublishDir: Path) {
     }
 }
 
-fun copyTemplateServiceFiles(templateName: String, projectDir: Path) {
+private fun copyTemplateServiceFiles(templateName: String, projectDir: Path) {
     val templateDir = Paths.get(TEMPLATES_DIR, templateName)
     templateDir.resolve(IMAGE_DIR).toFile().copyRecursively(projectDir.resolve(IMAGE_DIR).toFile(), true)
     templateDir.resolve(CSS_DIR).toFile().copyRecursively(projectDir.resolve(CSS_DIR).toFile(), true)
 }
 
-fun compileArticle(file: File, parser: MarkdownParser): Article {
+private fun compileArticle(file: File, parser: MarkdownParser): Article {
     val title = file.useLines { it.first() }.replace("#*".toRegex(), "").trim()
     val summary = file.useLines { it.firstOrNull { s -> s.startsWith(SUMMARY_KEYWORD) } }
         ?.replace("$SUMMARY_KEYWORD\\s*".toRegex(), "")?.trim()
@@ -180,7 +184,7 @@ fun compileArticle(file: File, parser: MarkdownParser): Article {
 
 }
 
-fun parseDate(str: String): LocalDate =
+private fun parseDate(str: String): LocalDate =
     LocalDate.parse(str, DateTimeFormatter.ofPattern("dd.MM.yyyy")) ?: LocalDate.now()
 
 
