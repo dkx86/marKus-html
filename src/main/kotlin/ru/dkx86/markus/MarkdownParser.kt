@@ -7,12 +7,13 @@ import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.data.MutableDataSet
 
 class MarkdownParser {
-    private val parser : Parser
-    private val renderer : HtmlRenderer
+    private val parser: Parser
+    private val renderer: HtmlRenderer
 
     init {
         val options = MutableDataSet()
-        options.set(Parser.EXTENSIONS, listOf(GitLabExtension.create(), MediaTagsExtension.create()))
+        val extensions = listOf(GitLabExtension.create(), MediaTagsExtension.create())
+        options.set(Parser.EXTENSIONS, extensions)
         parser = Parser.builder(options).build()
         renderer = HtmlRenderer.builder(options).build()
     }

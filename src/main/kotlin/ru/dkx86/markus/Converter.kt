@@ -171,7 +171,7 @@ private fun compileArticle(file: File, parser: MarkdownParser): Article {
 
     val srcFileName = file.nameWithoutExtension
     val parts = srcFileName.split("__")
-    val html = parser.md2html(text)
+    val html = parser.md2html(text).replace("<img ", "<img class=\"w3-image\" ")
 
     return Article(
         title = title,
