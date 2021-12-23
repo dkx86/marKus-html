@@ -22,7 +22,6 @@ fun listenInput() {
         processCommand(cmd.trim().removeMultiSpaces())
     } catch (e: Exception) {
         println("ERROR: ${e.message}")
-        e.printStackTrace() // TODO
     }
 
     listenInput()
@@ -50,7 +49,7 @@ fun validate(arg: String, operation: (index: Int) -> Unit) {
         if (index in 0..projects.size) operation(index)
         else println("Project #$index not found")
     } catch (e: NumberFormatException) {
-        println("Invalid argument '$arg'")
+        println("-ERROR- Invalid argument '$arg'")
     }
 }
 
@@ -70,32 +69,24 @@ fun loadProjects() {
     println("Loading existed projects...")
     val lines = File(PROJECTS_FILE).readLines()
     projects.clear()
-    projects.addAll(lines.map { readProject(it) })
+    try {
+        projects.addAll(lines.map { fromCSV(it) })
+    }catch (e : Exception){
+        println(e.message)
+    }
     println("${projects.size} projects loaded.")
 }
 
 fun saveProjects() {
     val content = StringBuilder()
     projects.forEach { p ->
-        content.append("${p.name};${p.description};${p.authorName};${p.tags};${p.path}").append("\n")
+        content.append(p.toCSV()).append("\n")
     }
 
     File(PROJECTS_FILE).run {
         createNewFile()
         writeText(content.toString())
     }
-}
-
-fun readProject(line: String): Project {
-    val parts = line.split(';')
-    return Project(
-        name = parts[0],
-        description = parts[1],
-        authorName = parts[2],
-        tags = parts[3],
-        path = Paths.get(parts[4]),
-        url = parts[5]
-    )
 }
 
 fun listProjects() {
@@ -105,19 +96,19 @@ fun listProjects() {
 
 fun createNewProject() {
     print("Input project name: ")
-    val projectName = readlnOrNull() ?: "weblog"
+    val projectName = readInput("weblog")
 
     print("Input weblog description: ")
-    val projectDescription = readlnOrNull() ?: "my personal weblog"
+    val projectDescription = readInput("my personal weblog")
 
     print("Input author name: ")
-    val authorName = readlnOrNull() ?: "author"
+    val authorName = readInput("author")
 
     print("Input weblog tags: ")
-    val projectTags = readlnOrNull() ?: ""
+    val projectTags = readInput("")
 
     print("Input project URL (need for RSS): ")
-    val projectUrl = readlnOrNull() ?: ""
+    val projectUrl = readInput("")
 
     val projectPath = Paths.get(PROJECTS_DIR, projectName.underscore()).createDirectories()
     projectPath.resolve(PROJECT_TEXT_DIR).createDirectories()
@@ -136,16 +127,16 @@ fun editProject(index: Int) {
     println("Editing project #$index (${project.name}): ")
 
     print("Input project name (${project.name}): ")
-    project.name = readlnOrNull() ?: project.name
+    project.name = readInput(project.name)
 
     print("Input project description (${project.description}): ")
-    project.description = readlnOrNull() ?: project.description
+    project.description = readInput(project.description)
 
     print("Input author name (${project.authorName}): ")
-    project.authorName = readlnOrNull() ?: project.authorName
+    project.authorName = readInput(project.authorName)
 
     print("Input weblog tags (${project.tags}): ")
-    project.tags = readlnOrNull() ?: project.tags
+    project.tags = readInput(project.tags)
 
     // save to file
     saveProjects()
@@ -163,18 +154,23 @@ fun deleteProject(index: Int) {
     }
 }
 
+fun readInput(default : String) : String {
+    val input = readlnOrNull() ?: default
+    return input.ifBlank { default }
+}
+
 fun printHelp() {
     println("'MarKus-html v0.1' a simple tool from making static html-weblog from markdown text.\n")
     println("Commands:\n")
-    println("list       : list existed projects")
-    println("show n     : show detailed information about project #n")
-    println("create     : create new project")
-    println("edit n     : edit project #n")
-    println("delete n   : delete project #n")
-    println("convert n  : convert project #n to html")
-    println("exit       : exit the program")
-    println("help       : print this help")
-    println("license    : print license text")
+    println("list         List existed projects")
+    println("show n       Show detailed information about project #n")
+    println("create       Create new project")
+    println("edit n       Edit project #n")
+    println("delete n     Delete project #n")
+    println("convert n    Convert project #n to html")
+    println("exit         Exit the program")
+    println("help         Print this help")
+    println("license      Print license text")
 }
 
 fun printLicense() {

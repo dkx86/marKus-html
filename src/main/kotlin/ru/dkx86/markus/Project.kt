@@ -1,6 +1,7 @@
 package ru.dkx86.markus
 
 import java.nio.file.Path
+import java.nio.file.Paths
 import kotlin.io.path.absolutePathString
 
 const val PROJECTS_DIR: String = "projects"
@@ -22,4 +23,19 @@ data class Project(
 
     fun fullInfo(): String =
         " Name: $name ${System.lineSeparator()} Description: $description ${System.lineSeparator()} Author: $authorName ${System.lineSeparator()} Tags: $tags ${System.lineSeparator()} Path: ${path.absolutePathString()} ${System.lineSeparator()} URL: $url"
+
+    fun toCSV() : String = "${name};${description};${authorName};${tags};${path};${url}"
+}
+
+fun fromCSV(csv : String) : Project {
+    val parts = csv.split(';')
+    if(parts.size != 6) throw Exception("-ERROR- Incorrect record in 'projects.csv': $csv")
+    return Project(
+        name = parts[0],
+        description = parts[1],
+        authorName = parts[2],
+        tags = parts[3],
+        path = Paths.get(parts[4]),
+        url = parts[5]
+    )
 }
