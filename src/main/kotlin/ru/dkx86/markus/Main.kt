@@ -67,13 +67,17 @@ fun convertProjectToHtml(index: Int) {
 
 fun loadProjects() {
     println("Loading existed projects...")
-    val lines = File(PROJECTS_FILE).readLines()
     projects.clear()
-    try {
-        projects.addAll(lines.map { fromCSV(it) })
-    }catch (e : Exception){
-        println(e.message)
+    val file = File(PROJECTS_FILE)
+    if(file.exists()){
+        val lines = File(PROJECTS_FILE).readLines()
+        try {
+            projects.addAll(lines.map { fromCSV(it) })
+        }catch (e : Exception){
+            println(e.message)
+        }
     }
+
     println("${projects.size} projects loaded.")
 }
 
