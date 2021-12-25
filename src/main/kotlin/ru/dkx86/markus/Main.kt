@@ -10,7 +10,7 @@ const val PROJECTS_FILE: String = "projects.csv"
 val projects = mutableListOf<Project>()
 
 fun main() {
-    println("Hello! MarKus here! (^0^)/")
+    println("Hello, marKus here! ^^/")
     loadProjects()
     listenInput()
 }
@@ -61,7 +61,9 @@ fun showProject(index: Int) {
 fun convertProjectToHtml(index: Int) {
     val project = projects[index]
     println("Start processing project #$index '${project.name}' ...")
-    if (convertMd2Html(project)) println("Project #$index '${project.name}' successfully converted.")
+    println("Input template dir name (default: 'simple'):")
+    val templateName = readInput("simple")
+    if (convertMd2Html(project, templateName)) println("Project #$index '${project.name}' successfully converted.")
 
 }
 
@@ -69,11 +71,11 @@ fun loadProjects() {
     println("Loading existed projects...")
     projects.clear()
     val file = File(PROJECTS_FILE)
-    if(file.exists()){
+    if (file.exists()) {
         val lines = File(PROJECTS_FILE).readLines()
         try {
             projects.addAll(lines.map { fromCSV(it) })
-        }catch (e : Exception){
+        } catch (e: Exception) {
             println(e.message)
         }
     }
@@ -158,8 +160,8 @@ fun deleteProject(index: Int) {
     }
 }
 
-fun readInput(default : String) : String {
-    val input = readlnOrNull() ?: default
+fun readInput(default: String): String {
+    val input = readlnOrNull() ?: return default
     return input.ifBlank { default }
 }
 
@@ -178,25 +180,27 @@ fun printHelp() {
 }
 
 fun printLicense() {
-    println("MIT License\n" +
-            "\n" +
-            "Copyright (c) 2021 Dmitry Kuznetsov aka dkx86\n" +
-            "\n" +
-            "Permission is hereby granted, free of charge, to any person obtaining a copy\n" +
-            "of this software and associated documentation files (the \"Software\"), to deal\n" +
-            "in the Software without restriction, including without limitation the rights\n" +
-            "to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\n" +
-            "copies of the Software, and to permit persons to whom the Software is\n" +
-            "furnished to do so, subject to the following conditions:\n" +
-            "\n" +
-            "The above copyright notice and this permission notice shall be included in all\n" +
-            "copies or substantial portions of the Software.\n" +
-            "\n" +
-            "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n" +
-            "IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n" +
-            "FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n" +
-            "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n" +
-            "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n" +
-            "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n" +
-            "SOFTWARE.")
+    println(
+        "MIT License\n" +
+                "\n" +
+                "Copyright (c) 2021 Dmitry Kuznetsov aka dkx86\n" +
+                "\n" +
+                "Permission is hereby granted, free of charge, to any person obtaining a copy\n" +
+                "of this software and associated documentation files (the \"Software\"), to deal\n" +
+                "in the Software without restriction, including without limitation the rights\n" +
+                "to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\n" +
+                "copies of the Software, and to permit persons to whom the Software is\n" +
+                "furnished to do so, subject to the following conditions:\n" +
+                "\n" +
+                "The above copyright notice and this permission notice shall be included in all\n" +
+                "copies or substantial portions of the Software.\n" +
+                "\n" +
+                "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n" +
+                "IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n" +
+                "FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n" +
+                "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n" +
+                "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n" +
+                "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n" +
+                "SOFTWARE."
+    )
 }

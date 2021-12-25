@@ -8,6 +8,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.createDirectories
+import kotlin.io.path.exists
 import kotlin.io.path.writeText
 
 const val PUBLISHED_DIR: String = "published"
@@ -16,6 +17,7 @@ const val DEFAULT_TEMPLATE_NAME: String = "simple"
 
 const val IMAGE_DIR: String = "img"
 const val CSS_DIR: String = "css"
+const val JS_DIR: String = "js"
 
 const val PLACEHOLDER_PROJECT_NAME: String = "{PROJECT_NAME}"
 const val PLACEHOLDER_PAGE_TITLE: String = "{PAGE_TITLE}"
@@ -92,7 +94,7 @@ fun convertMd2Html(project: Project, templateName: String = DEFAULT_TEMPLATE_NAM
     return true
 }
 
-private fun compileTypes(types: Set<String>, typeLinkTemplate : String): String {
+private fun compileTypes(types: Set<String>, typeLinkTemplate: String): String {
     val builder = StringBuilder()
     for (type in types) {
         val html = typeLinkTemplate.replace(RECORD_TYPE_LINK_TITLE, type.uppercase())
@@ -137,7 +139,13 @@ private fun saveIndexFiles(
     }
 }
 
-private fun saveIndexFile(records : List<IndexRecord>, pageTitle : String,  page: String, projectPublishDir: Path, fileName : String) {
+private fun saveIndexFile(
+    records: List<IndexRecord>,
+    pageTitle: String,
+    page: String,
+    projectPublishDir: Path,
+    fileName: String
+) {
     val total = records.sortedByDescending { it.date }
     val indexPageBuilder = StringBuilder()
     for (record in total) {
@@ -158,8 +166,14 @@ private fun copyImages(projectPath: Path, projectPublishDir: Path) {
 
 private fun copyTemplateServiceFiles(templateName: String, projectDir: Path) {
     val templateDir = Paths.get(TEMPLATES_DIR, templateName)
-    templateDir.resolve(IMAGE_DIR).toFile().copyRecursively(projectDir.resolve(IMAGE_DIR).toFile(), true)
-    templateDir.resolve(CSS_DIR).toFile().copyRecursively(projectDir.resolve(CSS_DIR).toFile(), true)
+    val imgDir = templateDir.resolve(IMAGE_DIR)
+    if (imgDir.exists()) imgDir.toFile().copyRecursively(projectDir.resolve(IMAGE_DIR).toFile(), true)
+
+    val cssDir = templateDir.resolve(CSS_DIR)
+    if (cssDir.exists()) cssDir.toFile().copyRecursively(projectDir.resolve(CSS_DIR).toFile(), true)
+
+    val jsDir = templateDir.resolve(JS_DIR)
+    if (jsDir.exists()) jsDir.toFile().copyRecursively(projectDir.resolve(JS_DIR).toFile(), true)
 }
 
 private fun compileArticle(file: File, parser: MarkdownParser): Article {
