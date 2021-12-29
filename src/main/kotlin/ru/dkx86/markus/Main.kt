@@ -9,10 +9,25 @@ const val PROJECTS_FILE: String = "projects.csv"
 
 val projects = mutableListOf<Project>()
 
-fun main() {
+fun main(args: Array<String>) {
     println("Hello, marKus here! ^^/")
     loadProjects()
-    listenInput()
+    if(args.isEmpty()){
+        listenInput()
+    }else{
+        processProgramArgs(args)
+    }
+}
+
+fun processProgramArgs(args: Array<String>){
+    if(args[0] != "-d" || args.size < 5 || args[1] != "-p"){
+        println("ERROR: Invalid params")
+        return
+    }
+
+    val projectNumber = args[2].toInt()
+    val templateName =  if(args[3] == "-t") args[4]  else "simple"
+    convertProjectToHtml(projectNumber, templateName)
 }
 
 fun listenInput() {
@@ -59,10 +74,14 @@ fun showProject(index: Int) {
 }
 
 fun convertProjectToHtml(index: Int) {
-    val project = projects[index]
-    println("Start processing project #$index '${project.name}' ...")
     println("Input template dir name (default: 'simple'):")
     val templateName = readInput("simple")
+    convertProjectToHtml(index, templateName)
+}
+
+fun convertProjectToHtml(index: Int, templateName : String = "simple") {
+    val project = projects[index]
+    println("Start processing project #$index '${project.name}' with template '$templateName' ...")
     if (convertMd2Html(project, templateName)) println("Project #$index '${project.name}' successfully converted.")
 
 }
@@ -166,7 +185,14 @@ fun readInput(default: String): String {
 }
 
 fun printHelp() {
-    println("'MarKus-html v0.1' a simple tool from making static html-weblog from markdown text.\n")
+    println("'MarKus-html v0.2' a simple tool from making static html-weblog from markdown text.\n")
+    println("Params:\n")
+    println("-h         Print this help")
+    println("-d         Run in non-interactive mode to convert one existed project")
+    println("-p         Project number")
+    println("-t         Template name (directory name)")
+    println("Example: '-d -p 0 -t simple' - convert project #0 with template 'simple'\n")
+
     println("Commands:\n")
     println("list         List existed projects")
     println("show n       Show detailed information about project #n")
