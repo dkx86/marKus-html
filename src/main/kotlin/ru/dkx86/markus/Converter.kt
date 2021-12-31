@@ -121,7 +121,7 @@ private fun saveIndexFiles(
     // full index
     saveIndexFile(
         records = indexRecordsMap.flatMap { it.value },
-        pageTitle = projectName,
+        pageTitle = projectName.uppercase(),
         page = page,
         projectPublishDir = projectPublishDir,
         fileName = "index"
@@ -131,7 +131,7 @@ private fun saveIndexFiles(
     for (entry in indexRecordsMap) {
         saveIndexFile(
             records = entry.value,
-            pageTitle = entry.key,
+            pageTitle = "${entry.key.uppercase()} | ${projectName.uppercase()}",
             page = page,
             projectPublishDir = projectPublishDir,
             fileName = "${entry.key}_index"
@@ -185,7 +185,7 @@ private fun compileArticle(file: File, parser: MarkdownParser): Article {
 
     val srcFileName = file.nameWithoutExtension
     val parts = srcFileName.split("__")
-    val html = parser.md2html(text).replace("<img ", "<img class=\"w3-image\" ")
+    val html = parser.md2html(text).replace("<img ", "<img class=\"w3-image centered_image\" ")
 
     return Article(
         title = title,
